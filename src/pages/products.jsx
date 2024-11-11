@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CardProduct from "../components/Fragments/CardProduct";
 import Button from "../components/Elements/Button";
 import { IoMdCart } from "react-icons/io";
@@ -43,6 +43,25 @@ const email = localStorage.getItem("email");
 const ProductPage = () => {
   const [showCart, setShowCart] = useState(false);
   const [cart, setCart] = useState([]);
+  const [totalPrice, setTotalPrice] = useState(0);
+
+  useEffect(() => {
+    const cart = localStorage.getItem("cart");
+    if (cart) {
+      setCart(JSON.parse(cart));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (cart.length > 0) {
+      const sum = cart.reduce((acc, item) => {
+        const product = products.find((product) => product.id === item.id);
+        return acc + product.price * item.qty;
+      }, 0);
+      setTotalPrice(sum);
+      localStorage.setItem("cart", JSON.stringify(cart));
+    }
+  }, [cart]);
 
   const handleCart = () => {
     setShowCart(!showCart);
@@ -159,15 +178,21 @@ const ProductPage = () => {
                   </li>
                 );
               })}
-              ;
             </ul>
+            <div className="flex justify-end gap-4 font-bold">
+              <p>Total Price</p>
+              <p>
+                {totalPrice.toLocaleString("id-ID", {
+                  style: "currency",
+                  currency: "IDR",
+                })}
+              </p>
+            </div>
           </div>
         </div>
 
         <div
-          className={`mx-auto max-w-screen-xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8 mt-10 ${
-            showCart === true && "blur-sm"
-          } `}
+          className={`mx-auto max-w-screen-xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8 mt-10`}
         >
           <header className="text-center">
             <h2 className="text-xl font-bold text-gray-900 sm:text-3xl">
